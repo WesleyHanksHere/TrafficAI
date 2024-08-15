@@ -21,17 +21,21 @@ S = Straight only lane
 R = Right turning only lane
 L = Left turning only lane
 RS = Right turning and straight lane
+LU = U-Turnable Left Turning Lane
+U = U-Turn only Lane
 
 NN = Neural Network
 """
 
 
-cars = {
+basicSystem = {
     "North": {"RS": []},
     "East": {"RS": []},
     "South": {"RS": []},
     "West": {"RS": []}
 }
+
+cars = []
 
 lightSystems = []
 
@@ -45,6 +49,7 @@ class BasicLightSystem:
         self.fitness = 0
         self.carsThrough = 0
         self.NNWeights = NNWeights
+        self.carInMiddle = 0
 
     def getFitness(self):
         return self.carsThrough
@@ -78,8 +83,13 @@ def createCar():
         intention = "Left"
     if lane == "RS":
         intention = random.choice(["Right", "Straight"])
-
-    cars[direction][lane].append(intention)
+    if lane == "LU":
+        intention = random.choice(["Left", "U-Turn"])
+    if lane == "U":
+        intention = "U-Turn"
+    
+    for system in cars:
+        system[direction][lane].append(intention)
 
 
 def sortByFitness():
@@ -160,5 +170,125 @@ def repopulateTheStrong(populationSize):
                 newNNWeights["West"][i] = random.random()
 
 
+def systemTick(lightSystem, systemIndex):
+    global cars
 
-tickNum = 0
+    if not(lightSystem.carInMiddle):
+        choice = lightSystem.getNNChoice
+        
+        if choice == "North":
+            for lane in list(cars[systemIndex]["North"].keys()):
+                if cars[systemIndex]["North"][lane][0] == "Right":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 3:
+                        lightSystem.carInMiddle = 3
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "Straight":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 5:
+                        lightSystem.carInMiddle = 5
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "Left":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 5:
+                        lightSystem.carInMiddle = 5
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "U-Turn":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 8:
+                        lightSystem.carInMiddle = 8
+                        lightSystem.carsThrough += 1
+
+        elif choice == "East":
+            for lane in list(cars[systemIndex]["East"].keys()):
+                if cars[systemIndex]["North"][lane][0] == "Right":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 3:
+                        lightSystem.carInMiddle = 3
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "Straight":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 5:
+                        lightSystem.carInMiddle = 5
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "Left":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 5:
+                        lightSystem.carInMiddle = 5
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "U-Turn":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 8:
+                        lightSystem.carInMiddle = 8
+                        lightSystem.carsThrough += 1
+
+        elif choice == "South":
+            for lane in list(cars[systemIndex]["South"].keys()):
+                if cars[systemIndex]["North"][lane][0] == "Right":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 3:
+                        lightSystem.carInMiddle = 3
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "Straight":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 5:
+                        lightSystem.carInMiddle = 5
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "Left":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 5:
+                        lightSystem.carInMiddle = 5
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "U-Turn":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 8:
+                        lightSystem.carInMiddle = 8
+                        lightSystem.carsThrough += 1
+
+        else:
+            for lane in list(cars[systemIndex]["West"].keys()):
+                if cars[systemIndex]["North"][lane][0] == "Right":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 3:
+                        lightSystem.carInMiddle = 3
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "Straight":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 5:
+                        lightSystem.carInMiddle = 5
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "Left":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 5:
+                        lightSystem.carInMiddle = 5
+                        lightSystem.carsThrough += 1
+                if cars[systemIndex]["North"][lane][0] == "U-Turn":
+                    del(cars[systemIndex]["North"][lane][0])
+                    if lightSystem.carInMiddle < 8:
+                        lightSystem.carInMiddle = 8
+                        lightSystem.carsThrough += 1
+
+    else:
+        lightSystem.carInMiddle -= 1
+
+    return
+    
+
+def resetCars(populationSize):
+    global cars, basicSystem
+    for i in range(populationSize):
+        cars.append(basicSystem)
+    return
+
+
+#INITIALIZE LIGHT SYSTEMS
+for i in range(populationSize):
+    lightSystems.append(BasicLightSystem())
+
+while True: #BASIC LOOP
+
+    resetCars(populationSize)
+    
+    tickNum = 0
+    while tickNum <= 1: #POPULATION TEST LOOP
+        #CONTINUE HERE
