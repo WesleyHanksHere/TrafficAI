@@ -88,7 +88,7 @@ def createCar():
     if lane == "U":
         intention = "U-Turn"
         
-    for i in range(len(cars)):
+    for i in range(1):
         cars[i][direction][lane].append(intention)
 
 
@@ -113,62 +113,68 @@ def sortByFitness():
 
 def cullTheWeak(populationSize):
     global lightSystems
-    for i in range(populationSize/10, populationSize):
-        del(lightSystems[(populationSize/10) + 1])
+    for i in range(int(populationSize/10), populationSize):
+        del(lightSystems[(int(populationSize/10))])
+    
+    for system in lightSystems:
+        system.carsThrough = 0
+        system.fitness = 0
 
 def repopulateTheStrong(populationSize):
     global lightSystems, currentID
 
     #REPOPULATION
     intialParents = lightSystems
-    for i in range(populationSize/10, populationSize):
+    for i in range(int(populationSize/10), populationSize):
         currentID += 1
         parent1 = random.choice(intialParents)
         parent2 = random.choice(intialParents)
         newNNWeights = {"North": [0, 0, 0, 0], "East": [0, 0, 0, 0], "South": [0, 0, 0, 0], "West": [0, 0, 0, 0]}
         for j in range(0, len(newNNWeights["North"]) - 1):
             if random.randint(1, 2) == 1:
-                newNNWeights["North"][j] = parent1["North"][j]
+                newNNWeights["North"][j] = parent1.NNWeights["North"][j]
             else:
-                newNNWeights["North"][j] = parent1["North"][j]
+                newNNWeights["North"][j] = parent1.NNWeights["North"][j]
 
         for j in range(0, len(newNNWeights["East"]) - 1):
             if random.randint(1, 2) == 1:
-                newNNWeights["East"][j] = parent1["East"][j]
+                newNNWeights["East"][j] = parent1.NNWeights["East"][j]
             else:
-                newNNWeights["East"][j] = parent1["East"][j]
+                newNNWeights["East"][j] = parent1.NNWeights["East"][j]
 
         for j in range(0, len(newNNWeights["South"]) - 1):
             if random.randint(1, 2) == 1:
-                newNNWeights["South"][j] = parent1["South"][j]
+                newNNWeights["South"][j] = parent1.NNWeights["South"][j]
             else:
-                newNNWeights["South"][j] = parent1["South"][j]
+                newNNWeights["South"][j] = parent1.NNWeights["South"][j]
 
         for j in range(0, len(newNNWeights["West"]) - 1):
             if random.randint(1, 2) == 1:
-                newNNWeights["West"][j] = parent1["West"][j]
+                newNNWeights["West"][j] = parent1.NNWeights["West"][j]
             else:
-                newNNWeights["West"][j] = parent1["West"][j]
+                newNNWeights["West"][j] = parent1.NNWeights["West"][j]
         lightSystems.append(BasicLightSystem(currentID, newNNWeights))
     
     #MUTATION
-    for i in range(populationSize/10, populationSize):
-        newNNWeights = lightSystems[i]
+    for i in range(int(populationSize/10), populationSize):
+        newNNWeights = lightSystems[i].NNWeights
         for j in range(0, len(newNNWeights["North"]) - 1):
             if random.randint(1, 1000) == 1:
-                newNNWeights["North"][i] = random.random()
+                newNNWeights["North"][j] = random.random()
 
         for j in range(0, len(newNNWeights["East"]) - 1):
             if random.randint(1, 1000) == 1:
-                newNNWeights["East"][i] = random.random()
+                newNNWeights["East"][j] = random.random()
 
         for j in range(0, len(newNNWeights["South"]) - 1):
             if random.randint(1, 1000) == 1:
-                newNNWeights["South"][i] = random.random()
+                newNNWeights["South"][j] = random.random()
                 
         for j in range(0, len(newNNWeights["West"]) - 1):
             if random.randint(1, 1000) == 1:
-                newNNWeights["West"][i] = random.random()
+                newNNWeights["West"][j] = random.random()
+
+        lightSystems[i].NNWeights = newNNWeights
 
 
 def systemTick(lightSystem, systemIndex):
@@ -185,21 +191,25 @@ def systemTick(lightSystem, systemIndex):
                         if lightSystem.carInMiddle < 3:
                             lightSystem.carInMiddle = 3
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["North"][lane][0] == "Straight":
+    
+                    elif cars[systemIndex]["North"][lane][0] == "Straight":
                         del(cars[systemIndex]["North"][lane][0])
                         if lightSystem.carInMiddle < 5:
                             lightSystem.carInMiddle = 5
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["North"][lane][0] == "Left":
+    
+                    elif cars[systemIndex]["North"][lane][0] == "Left":
                         del(cars[systemIndex]["North"][lane][0])
                         if lightSystem.carInMiddle < 5:
                             lightSystem.carInMiddle = 5
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["North"][lane][0] == "U-Turn":
+    
+                    elif cars[systemIndex]["North"][lane][0] == "U-Turn":
                         del(cars[systemIndex]["North"][lane][0])
                         if lightSystem.carInMiddle < 8:
                             lightSystem.carInMiddle = 8
                             lightSystem.carsThrough += 1
+    
 
         elif choice == "East":
             for lane in list(cars[systemIndex]["East"].keys()):
@@ -209,21 +219,25 @@ def systemTick(lightSystem, systemIndex):
                         if lightSystem.carInMiddle < 3:
                             lightSystem.carInMiddle = 3
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["East"][lane][0] == "Straight":
+    
+                    elif cars[systemIndex]["East"][lane][0] == "Straight":
                         del(cars[systemIndex]["East"][lane][0])
                         if lightSystem.carInMiddle < 5:
                             lightSystem.carInMiddle = 5
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["East"][lane][0] == "Left":
+    
+                    elif cars[systemIndex]["East"][lane][0] == "Left":
                         del(cars[systemIndex]["East"][lane][0])
                         if lightSystem.carInMiddle < 5:
                             lightSystem.carInMiddle = 5
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["North"][lane][0] == "U-Turn":
+    
+                    elif cars[systemIndex]["North"][lane][0] == "U-Turn":
                         del(cars[systemIndex]["North"][lane][0])
                         if lightSystem.carInMiddle < 8:
                             lightSystem.carInMiddle = 8
                             lightSystem.carsThrough += 1
+    
 
         elif choice == "South":
             for lane in list(cars[systemIndex]["South"].keys()):
@@ -233,21 +247,25 @@ def systemTick(lightSystem, systemIndex):
                         if lightSystem.carInMiddle < 3:
                             lightSystem.carInMiddle = 3
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["South"][lane][0] == "Straight":
+    
+                    elif cars[systemIndex]["South"][lane][0] == "Straight":
                         del(cars[systemIndex]["South"][lane][0])
                         if lightSystem.carInMiddle < 5:
                             lightSystem.carInMiddle = 5
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["South"][lane][0] == "Left":
+    
+                    elif cars[systemIndex]["South"][lane][0] == "Left":
                         del(cars[systemIndex]["South"][lane][0])
                         if lightSystem.carInMiddle < 5:
                             lightSystem.carInMiddle = 5
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["South"][lane][0] == "U-Turn":
+    
+                    elif cars[systemIndex]["South"][lane][0] == "U-Turn":
                         del(cars[systemIndex]["South"][lane][0])
                         if lightSystem.carInMiddle < 8:
                             lightSystem.carInMiddle = 8
                             lightSystem.carsThrough += 1
+    
 
         else:
             for lane in list(cars[systemIndex]["West"].keys()):
@@ -257,17 +275,20 @@ def systemTick(lightSystem, systemIndex):
                         if lightSystem.carInMiddle < 3:
                             lightSystem.carInMiddle = 3
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["West"][lane][0] == "Straight":
+    
+                    elif cars[systemIndex]["West"][lane][0] == "Straight":
                         del(cars[systemIndex]["West"][lane][0])
                         if lightSystem.carInMiddle < 5:
                             lightSystem.carInMiddle = 5
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["West"][lane][0] == "Left":
+    
+                    elif cars[systemIndex]["West"][lane][0] == "Left":
                         del(cars[systemIndex]["West"][lane][0])
                         if lightSystem.carInMiddle < 5:
                             lightSystem.carInMiddle = 5
                             lightSystem.carsThrough += 1
-                    if cars[systemIndex]["West"][lane][0] == "U-Turn":
+    
+                    elif cars[systemIndex]["West"][lane][0] == "U-Turn":
                         del(cars[systemIndex]["West"][lane][0])
                         if lightSystem.carInMiddle < 8:
                             lightSystem.carInMiddle = 8
@@ -291,7 +312,7 @@ for i in range(populationSize):
     lightSystems.append(BasicLightSystem())
 
 generations = 0
-while generations < 10: #BASIC LOOP
+while generations < 1000: #BASIC LOOP
 
     resetCars(populationSize)
     
@@ -309,6 +330,7 @@ while generations < 10: #BASIC LOOP
     
     #EVOLUTIONARY STAGE
     sortByFitness()
-    cullTheWeak()
-    repopulateTheStrong()
+    print("Generation " + str(generations) + " Concluded. Best of generation: " + str(lightSystems[0].carsThrough))
+    cullTheWeak(populationSize)
+    repopulateTheStrong(populationSize)
     generations += 1
