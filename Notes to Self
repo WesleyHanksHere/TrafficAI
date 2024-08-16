@@ -1,0 +1,8 @@
+Notes to self:
+
+Add a reward for letting cars that have been waiting so that the algorithm doesn't let cars sit for ages.
+  Options include (but are obviously not limited to):
+  - Having cars remove fitness from Light Systems based on how long they have been waiting
+  - Adding a reward to letting a given car through based on how long it has been waiting
+  - Decreasing the reward gained from a given lane based on how many cars have gone through that lane. (This applies over the entire process)
+  - Decreasing the reward gained from a given lane based on how many cars have gone through that lane since changing lights/lanes. (This does not apply over the entire process)
